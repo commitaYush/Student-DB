@@ -6,19 +6,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StudentDAO {
-    private static final String URL = System.getenv("DB_URL") != null 
-        ? System.getenv("DB_URL") 
-        : "jdbc:mysql://localhost:3306/studentdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-private static final String USER = System.getenv("DB_USER") != null 
-        ? System.getenv("DB_USER") 
-        : "root";
-private static final String PASSWORD = System.getenv("DB_PASSWORD") != null 
-        ? System.getenv("DB_PASSWORD") 
-        : "password";
 
-    private Connection getConnection() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("[ERROR] MySQL Driver not found: " + e.getMessage());
+        }
+    }
+
+    private static String getJdbcUrl() {
+        String envUrl = System.getenv("DB_URL");
+        if (envUrl != null && !envUrl.trim().isEmpty()) {
+            return envUrl.trim();
+        }
+        return "jdbc:mysql://localhost:3306/studentdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    }
+
+    private static String getJdbcUser() {
+        String envUser = System.getenv("DB_USER");
+        return (envUser != null && !envUser.trim().isEmpty()) ? envUser.trim() : "root";
+    }
+
+    private static String getJdbcPassword() {
+        String envPass = System.getenv("DB_PASSWORD");
+        return (envPass != null && !envPass.trim().isEmpty()) ? envPass.trim() : "password";
+    }
+
+    private Connection getConnection() throws SQLException {
+        String url = getJdbcUrl();
+        String user = getJdbcUser();
+        String password = getJdbcPassword();
+        return DriverManager.getConnection(url, user, password);
     }
 
     public boolean addStudent(StudentBean student) {
@@ -33,6 +52,7 @@ private static final String PASSWORD = System.getenv("DB_PASSWORD") != null
 
             return stmt.executeUpdate() > 0;
         } catch (Exception e) {
+            System.err.println("[DB ERROR] addStudent failed: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -56,6 +76,7 @@ private static final String PASSWORD = System.getenv("DB_PASSWORD") != null
                 list.add(s);
             }
         } catch (Exception e) {
+            System.err.println("[DB ERROR] getAllStudents failed: " + e.getMessage());
             e.printStackTrace();
         }
         return list;
@@ -74,6 +95,7 @@ private static final String PASSWORD = System.getenv("DB_PASSWORD") != null
 
             return stmt.executeUpdate() > 0;
         } catch (Exception e) {
+            System.err.println("[DB ERROR] updateStudent failed: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -87,6 +109,7 @@ private static final String PASSWORD = System.getenv("DB_PASSWORD") != null
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
         } catch (Exception e) {
+            System.err.println("[DB ERROR] deleteStudent failed: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
