@@ -6,9 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StudentDAO {
-    private static final String URL = "jdbc:mysql://127.0.0.1:3306/studentdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "boss"; // Replace with your MySQL password
+    private static final String URL = System.getenv("DB_URL") != null 
+        ? System.getenv("DB_URL") 
+        : "jdbc:mysql://localhost:3306/studentdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+private static final String USER = System.getenv("DB_USER") != null 
+        ? System.getenv("DB_USER") 
+        : "root";
+private static final String PASSWORD = System.getenv("DB_PASSWORD") != null 
+        ? System.getenv("DB_PASSWORD") 
+        : "password";
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");

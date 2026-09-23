@@ -14,7 +14,9 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public class WebServerApp {
-    private static final int PORT = 8080;
+    private static final int PORT = System.getenv("PORT") != null 
+        ? Integer.parseInt(System.getenv("PORT")) 
+        : 8080;
     private static final StudentDAO dao = new StudentDAO();
 
     public static void main(String[] args) throws IOException {
